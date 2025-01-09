@@ -1,2 +1,4 @@
 jdk:
   - openjdk17
+gradle:
+  wrapper: gradle-8.9
