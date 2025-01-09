@@ -1,25 +1,30 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
+plugins {
+    id "com.android.library" // Android Library 插件
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id "org.jetbrains.kotlin.android" // Kotlin 插件
+    id "maven-publish" // 发布到 Maven
+}
 
 android {
-    compileSdkVersion Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
+    namespace "dji.v5.ux"
+    compileSdk Integer.parseInt(project.ANDROID_COMPILE_SDK_VERSION)
 
     resourcePrefix "uxsdk_"
     defaultConfig {
         minSdkVersion Integer.parseInt(project.ANDROID_MIN_SDK_VERSION)
         targetSdkVersion Integer.parseInt(project.ANDROID_TARGET_SDK_VERSION)
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
-    kotlinOptions{
-        jvmTarget = JavaVersion.VERSION_1_8
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_17
         freeCompilerArgs += ["-Xjvm-default=all"]
     }
 
@@ -67,4 +72,14 @@ dependencies {
     compileOnly deps.aircraftProvided
     implementation deps.aircraft
 
+}
+afterEvaluate {
+    android.libraryVariants.each { variant ->
+        publishing.publications.create(variant.name, MavenPublication) {
+            from components.findByName(variant.name)
+            groupId = "com.taylorz"
+            artifactId = 'uxsdk'
+            version = '1.0.0'
+        }
+    }
 }
