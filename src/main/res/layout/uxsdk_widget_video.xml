@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:parentTag="dji.v5.ux.core.widget.fpv.FPVWidget">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/widget_fpv_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <SurfaceView
+            android:id="@+id/surface_view_fpv"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <dji.v5.ux.core.ui.GridLineView
+            android:id="@+id/view_grid_line"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <dji.v5.ux.core.ui.CenterPointView
+            android:id="@+id/view_center_point"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.1" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/assist_control"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/uxsdk_black_transparent"
+            android:visibility="gone">
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/vertical_offset"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.5" />
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/horizontal_offset"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.5" />
+
+            <TextView
+                android:id="@+id/tv_current_direction"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/uxsdk_120_dp"
+                android:background="@drawable/uxsdk_bg_translucent_button"
+                android:paddingHorizontal="@dimen/uxsdk_8_dp"
+                android:paddingVertical="@dimen/uxsdk_3_dp"
+                android:text="N/A"
+                android:textColor="@color/uxsdk_orange_in_dark"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="@id/vertical_offset"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <ImageButton
+                android:id="@+id/btnDirectionFront"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginBottom="@dimen/uxsdk_80_dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/direction_up_selected"
+                app:layout_constraintBottom_toBottomOf="@id/vertical_offset"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:tint="@color/uxsdk_white" />
+
+            <ImageButton
+                android:id="@+id/btnDirectionBack"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginTop="@dimen/uxsdk_80_dp"
+                android:background="@android:color/transparent"
+                android:rotation="180"
+                android:src="@drawable/direction_up_selected"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/vertical_offset"
+                app:tint="@color/uxsdk_white" />
+
+            <ImageButton
+                android:id="@+id/btnDirectionLeft"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginEnd="@dimen/uxsdk_80_dp"
+                android:background="@android:color/transparent"
+                android:rotation="-90"
+                android:src="@drawable/direction_up_selected"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/horizontal_offset"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/uxsdk_white" />
+
+            <ImageButton
+                android:id="@+id/btnDirectionRight"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginStart="@dimen/uxsdk_80_dp"
+                android:background="@android:color/transparent"
+                android:rotation="90"
+                android:src="@drawable/direction_up_selected"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@id/horizontal_offset"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/uxsdk_white" />
+
+            <ImageButton
+                android:id="@+id/btnDirectionDown"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginTop="@dimen/uxsdk_30_dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/direction_arrow_down"
+                app:layout_constraintStart_toStartOf="@id/btnDirectionRight"
+                app:layout_constraintTop_toBottomOf="@id/btnDirectionRight"
+                app:tint="@color/uxsdk_white" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/box_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/uxsdk_black"
+        android:visibility="gone">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="起飞后查看"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:textColor="@color/uxsdk_white"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</merge>

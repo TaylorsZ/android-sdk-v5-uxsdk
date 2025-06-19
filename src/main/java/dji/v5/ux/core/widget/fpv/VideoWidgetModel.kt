@@ -1,27 +1,7 @@
-/*
- * Copyright (c) 2018-2020 DJI
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- *
- */
 package dji.v5.ux.core.widget.fpv
 
+
+import android.util.Log
 import android.view.Surface
 import dji.sdk.keyvalue.key.CameraKey
 import dji.sdk.keyvalue.key.FlightControllerKey
@@ -50,11 +30,7 @@ import dji.v5.ux.core.util.DataProcessor
 import dji.v5.ux.core.util.UxErrorHandle
 import io.reactivex.rxjava3.core.Flowable
 
-/**
- * Widget Model for the [FPVWidget] used to define
- * the underlying logic and communication
- */
-class FPVWidgetModel(
+class VideoWidgetModel(
     djiSdkModel: DJISDKModel,
     keyedStore: ObservableInMemoryKeyedStore,
     private val flatCameraModule: FlatCameraModule,
@@ -67,19 +43,14 @@ class FPVWidgetModel(
     private val isMotorOnProcessor: DataProcessor<Boolean> = DataProcessor.create(false)
     val displayMsgProcessor: DataProcessor<String> = DataProcessor.create("")
     val cameraSideProcessor: DataProcessor<String> = DataProcessor.create("")
+    val displayAssistantProcessor: DataProcessor<Boolean> = DataProcessor.create(false)
     private val videoViewChangedProcessor: DataProcessor<Boolean> = DataProcessor.create(false)
     var streamSourceListener: FPVStreamSourceListener? = null
     private var cameraType: CameraType = CameraType.NOT_SUPPORTED
 
-    /**
-     * The current camera index. This value should only be used for video size calculation.
-     * To get the camera side, use [FPVWidgetModel.cameraSide] instead.
-     */
+
     private var currentCameraIndex: ComponentIndexType = ComponentIndexType.UNKNOWN
 
-    /**
-     * Get whether the video view has changed
-     */
     @get:JvmName("hasVideoViewChanged")
     val hasVideoViewChanged: Flowable<Boolean>
         get() = videoViewChangedProcessor.toFlowable()
@@ -123,6 +94,8 @@ class FPVWidgetModel(
         }
 
         bindDataProcessor(FlightControllerKey.KeyAreMotorsOn.create(), isMotorOnProcessor) {
+            isMotorOnProcessor.onNext(it)
+            Log.d("KeyAreMotorsOn", "Motors are on: $it  isMotorOnProcessor:${isMotorOnProcessor.value}")
             updateCameraDisplay()
         }
 
@@ -162,7 +135,12 @@ class FPVWidgetModel(
         if (currentCameraIndex == ComponentIndexType.VISION_ASSIST) {
             if (!isMotorOnProcessor.value) {
                 msg = StringUtils.getResStr(R.string.uxsdk_assistant_video_empty_text)
+                displayAssistantProcessor.onNext(false)
+            }else{
+                displayAssistantProcessor.onNext(true)
             }
+        }else{
+            displayAssistantProcessor.onNext(true)
         }
         displayMsgProcessor.onNext(msg)
         cameraSideProcessor.onNext(currentCameraIndex.name)

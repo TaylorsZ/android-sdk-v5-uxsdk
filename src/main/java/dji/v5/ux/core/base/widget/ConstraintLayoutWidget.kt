@@ -59,6 +59,7 @@ abstract class ConstraintLayoutWidget<T : Any> @JvmOverloads constructor(
     //region Constructor
     init {
         initView(context, attrs, defStyleAttr)
+
     }
     //endregion
 
@@ -148,6 +149,7 @@ abstract class ConstraintLayoutWidget<T : Any> @JvmOverloads constructor(
      * @return update with widget state
      */
     open fun getWidgetStateUpdate(): Flowable<T> = widgetStateDataProcessor.onBackpressureBuffer()
+
 
     companion object {
         private const val TAG = "ConstraintLayoutWidget"
