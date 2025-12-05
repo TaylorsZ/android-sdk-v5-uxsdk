@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:parentTag="dji.v5.ux.core.widget.fpv.FPVWidget">
+    tools:parentTag="dji.v5.ux.core.widget.fpv.VideoWidget">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/widget_fpv_container"
@@ -44,7 +44,6 @@
             android:id="@+id/assist_control"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/uxsdk_black_transparent"
             android:visibility="gone">
 
             <androidx.constraintlayout.widget.Guideline
@@ -143,21 +142,27 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:id="@+id/box_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/uxsdk_black"
+        android:orientation="vertical"
+        android:gravity="center"
         android:visibility="gone">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/uxsdk_disabled_visible_24"
+            app:tint="@color/uxsdk_white_40_percent"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="起飞后查看"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:textColor="@color/uxsdk_white"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_marginTop="@dimen/uxsdk_4_dp"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:textColor="@color/uxsdk_white_40_percent"/>
+    </LinearLayout>
 
 </merge>

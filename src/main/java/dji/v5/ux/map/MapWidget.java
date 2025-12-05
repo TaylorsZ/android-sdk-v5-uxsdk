@@ -924,6 +924,7 @@ public class MapWidget extends ConstraintLayoutWidget<Object> implements View.On
     private void postInit(OnMapReadyListener listener) {
         updateHomeCountry();
         map.setMapType(mapType, () -> {
+
             Single<LocationCoordinate3D> aircraftLocation = widgetModel.getAircraftLocation().firstOrError();
             Single<LocationCoordinate2D> homeLocation = widgetModel.getHomeLocation().firstOrError();
             addDisposable(Single.zip(aircraftLocation, homeLocation, Pair::new)

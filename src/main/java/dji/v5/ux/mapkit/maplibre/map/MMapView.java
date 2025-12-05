@@ -1,17 +1,15 @@
 package dji.v5.ux.mapkit.maplibre.map;
 
 import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.mapbox.mapboxsdk.maps.MapView;
+import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
+
 import dji.v5.ux.mapkit.core.maps.DJIMapView;
 import dji.v5.ux.mapkit.core.maps.DJIMapViewInternal;
-
-import com.mapbox.mapboxsdk.maps.MapView;
-import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.mapboxsdk.maps.MapboxMapOptions;
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
-import com.mapbox.mapboxsdk.maps.Style;
 
 /**
  * Created by joeyang on 11/3/17.

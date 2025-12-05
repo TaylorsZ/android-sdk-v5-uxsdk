@@ -78,14 +78,10 @@ open class VideoWidget @JvmOverloads constructor(
     val widgetModel: VideoWidgetModel = VideoWidgetModel(
         DJISDKModel.getInstance(), ObservableInMemoryKeyedStore.getInstance(), FlatCameraModule()
     )
-    private var isInitialized = false
     var showAssistControl: Boolean = true
         set(value) {
             if (widgetModel.getCameraIndex() == ComponentIndexType.VISION_ASSIST && value){
                 mBinding.assistControl.visibility = View.VISIBLE
-                if (!isInitialized){
-                    toggleButtonState(0)
-                }
             }else{
                 mBinding.assistControl.visibility = View.GONE
             }
@@ -147,7 +143,7 @@ open class VideoWidget @JvmOverloads constructor(
 
     }
 
-    private fun toggleButtonState(state: Int) {
+    private fun updateButtonState(state: VisionAssistDirection) {
         with(mBinding) {
             btnDirectionFront.rotation = 0f
             btnDirectionFront.setColorFilter(directionColor, PorterDuff.Mode.SRC_IN)
@@ -160,37 +156,45 @@ open class VideoWidget @JvmOverloads constructor(
             btnDirectionDown.setColorFilter(directionColor, PorterDuff.Mode.SRC_IN)
 
             when (state) {
-                0 -> {
+                VisionAssistDirection.FRONT -> {
                     btnDirectionFront.rotation = 0f
                     btnDirectionFront.setColorFilter(directionSelectedColor, PorterDuff.Mode.SRC_IN)
                     tvCurrentDirection.text = "前"
-                    widgetModel.setVisionAssistViewDirection(VisionAssistDirection.FRONT)
                 }
 
-                1 -> {
+                VisionAssistDirection.BACK -> {
                     btnDirectionBack.rotation = 180f
                     btnDirectionBack.setColorFilter(directionSelectedColor, PorterDuff.Mode.SRC_IN)
                     tvCurrentDirection.text = "后"
-                    widgetModel.setVisionAssistViewDirection(VisionAssistDirection.BACK)
                 }
 
-                2 -> {
+                VisionAssistDirection.LEFT -> {
                     btnDirectionLeft.rotation = -90f
                     btnDirectionLeft.setColorFilter(directionSelectedColor, PorterDuff.Mode.SRC_IN)
                     tvCurrentDirection.text = "左"
-                    widgetModel.setVisionAssistViewDirection(VisionAssistDirection.LEFT)
                 }
 
-                3 -> {
+                VisionAssistDirection.RIGHT -> {
                     btnDirectionRight.rotation = 90f
                     btnDirectionRight.setColorFilter(directionSelectedColor, PorterDuff.Mode.SRC_IN)
                     tvCurrentDirection.text = "右"
-                    widgetModel.setVisionAssistViewDirection(VisionAssistDirection.RIGHT)
                 }
-                4 -> {
+                VisionAssistDirection.DOWN -> {
                     tvCurrentDirection.text = "下"
                     btnDirectionDown.setColorFilter(directionSelectedColor, PorterDuff.Mode.SRC_IN)
-                    widgetModel.setVisionAssistViewDirection(VisionAssistDirection.DOWN)
+                }
+                VisionAssistDirection.AUTO -> {
+                    tvCurrentDirection.text = "自动"
+                }
+
+                VisionAssistDirection.OFF -> {
+                    tvCurrentDirection.text = "关闭"
+                }
+                VisionAssistDirection.UP -> {
+                    tvCurrentDirection.text = "上"
+                }
+                VisionAssistDirection.UNKNOWN -> {
+                    tvCurrentDirection.text = "未知"
                 }
             }
         }
@@ -202,11 +206,11 @@ open class VideoWidget @JvmOverloads constructor(
             mBinding.surfaceViewFpv.holder.addCallback(cameraSurfaceCallback)
         }
         attrs?.let { initAttributes(context, it) }
-        mBinding.btnDirectionFront.setOnClickListener { toggleButtonState(0) }
-        mBinding.btnDirectionBack.setOnClickListener { toggleButtonState(1) }
-        mBinding.btnDirectionLeft.setOnClickListener { toggleButtonState(2) }
-        mBinding.btnDirectionRight.setOnClickListener { toggleButtonState(3) }
-        mBinding.btnDirectionDown.setOnClickListener { toggleButtonState(4) }
+        mBinding.btnDirectionFront.setOnClickListener {  widgetModel.setVisionAssistViewDirection(VisionAssistDirection.FRONT) }
+        mBinding.btnDirectionBack.setOnClickListener { widgetModel.setVisionAssistViewDirection(VisionAssistDirection.BACK) }
+        mBinding.btnDirectionLeft.setOnClickListener { widgetModel.setVisionAssistViewDirection(VisionAssistDirection.LEFT) }
+        mBinding.btnDirectionRight.setOnClickListener {widgetModel.setVisionAssistViewDirection(VisionAssistDirection.RIGHT) }
+        mBinding.btnDirectionDown.setOnClickListener { widgetModel.setVisionAssistViewDirection(VisionAssistDirection.DOWN) }
     }
     //endregion
 
@@ -249,6 +253,11 @@ open class VideoWidget @JvmOverloads constructor(
         addReaction(
             widgetModel.hasVideoViewChanged.observeOn(SchedulerProvider.ui())
                 .subscribe { delayCalculator() })
+        addReaction(
+            widgetModel.assistViewDirectionProcessor.toFlowable().observeOn(SchedulerProvider.ui())
+                .subscribe { visionAssistDirection: VisionAssistDirection ->
+                    updateButtonState(visionAssistDirection)
+                })
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
@@ -276,10 +285,13 @@ open class VideoWidget @JvmOverloads constructor(
     fun updateVideoSource(source: ComponentIndexType) {
         LogUtils.i(LogPath.SAMPLE, "updateVideoSource", source, this)
         widgetModel.updateCameraSource(source, CameraLensType.UNKNOWN)
-        isInitialized = true
-        if (source == ComponentIndexType.VISION_ASSIST && showAssistControl) {
+
+        if ((source == ComponentIndexType.VISION_ASSIST || source == ComponentIndexType.FPV) && showAssistControl) {
             mBinding.assistControl.visibility = VISIBLE
-            toggleButtonState(0)
+//            if (!isInitialized){
+//                toggleButtonState(0)
+//                isInitialized = true
+//            }
         } else {
             mBinding.assistControl.visibility = GONE
         }

@@ -16,6 +16,7 @@ import dji.v5.common.error.IDJIError
 import dji.v5.et.create
 import dji.v5.et.createCamera
 import dji.v5.manager.datacenter.MediaDataCenter
+import dji.v5.manager.datacenter.camera.CameraStreamManager
 import dji.v5.manager.interfaces.ICameraStreamManager
 import dji.v5.utils.common.LogUtils
 import dji.v5.utils.common.StringUtils
@@ -34,7 +35,7 @@ class VideoWidgetModel(
     djiSdkModel: DJISDKModel,
     keyedStore: ObservableInMemoryKeyedStore,
     private val flatCameraModule: FlatCameraModule,
-) : WidgetModel(djiSdkModel, keyedStore), ICameraIndex {
+) : WidgetModel(djiSdkModel, keyedStore), ICameraIndex, ICameraStreamManager.VisionAssistStatusListener {
 
     private var currentLensType = CameraLensType.CAMERA_LENS_DEFAULT
     private val streamSourceCameraTypeProcessor = DataProcessor.create(CameraVideoStreamSourceType.UNKNOWN)
@@ -45,10 +46,11 @@ class VideoWidgetModel(
     val cameraSideProcessor: DataProcessor<String> = DataProcessor.create("")
     val displayAssistantProcessor: DataProcessor<Boolean> = DataProcessor.create(false)
     private val videoViewChangedProcessor: DataProcessor<Boolean> = DataProcessor.create(false)
+    val assistViewRangeChangedProcessor: DataProcessor<List<VisionAssistDirection>> = DataProcessor.create(emptyList<VisionAssistDirection>())
+    val assistViewDirectionProcessor: DataProcessor<VisionAssistDirection> = DataProcessor.create(VisionAssistDirection.UNKNOWN)
     var streamSourceListener: FPVStreamSourceListener? = null
     private var cameraType: CameraType = CameraType.NOT_SUPPORTED
-
-
+    private val cameraStreamManager: ICameraStreamManager = MediaDataCenter.getInstance().cameraStreamManager
     private var currentCameraIndex: ComponentIndexType = ComponentIndexType.UNKNOWN
 
     @get:JvmName("hasVideoViewChanged")
@@ -76,6 +78,7 @@ class VideoWidgetModel(
 
     //region Lifecycle
     override fun inSetup() {
+        cameraStreamManager.addVisionAssistStatusListener(this)
         val videoViewChangedConsumer = { _: Any -> videoViewChangedProcessor.onNext(true) }
         bindDataProcessor(CameraKey.KeyCameraVideoStreamSource.create(currentCameraIndex), streamSourceCameraTypeProcessor) {
             currentLensType = when (it) {
@@ -104,7 +107,6 @@ class VideoWidgetModel(
             updateCameraDisplay()
         }
 
-
         bindDataProcessor(CameraKey.KeyVideoResolutionFrameRate.createCamera(currentCameraIndex, currentLensType), resolutionAndFrameRateProcessor)
 
         addDisposable(
@@ -113,6 +115,7 @@ class VideoWidgetModel(
                 .subscribe({ }, UxErrorHandle.logErrorConsumer(tag, "camera mode: "))
         )
         sourceUpdate()
+
     }
 
     override fun inCleanup() {
@@ -156,19 +159,20 @@ class VideoWidgetModel(
         height: Int,
         scaleType: ICameraStreamManager.ScaleType
     ) {
-        MediaDataCenter.getInstance().cameraStreamManager.putCameraStreamSurface(currentCameraIndex, surface, width, height, scaleType)
+        cameraStreamManager.putCameraStreamSurface(currentCameraIndex, surface, width, height, scaleType)
     }
 
     fun removeCameraStreamSurface(surface: Surface) {
-        MediaDataCenter.getInstance().cameraStreamManager.removeCameraStreamSurface(surface)
+        cameraStreamManager.removeCameraStreamSurface(surface)
+        cameraStreamManager.removeVisionAssistStatusListener(this)
     }
 
     fun enableVisionAssist() {
-        MediaDataCenter.getInstance().cameraStreamManager.enableVisionAssist(true, null)
+        cameraStreamManager.enableVisionAssist(true, null)
 
     }
     fun setVisionAssistViewDirection(direction: VisionAssistDirection){
-        MediaDataCenter.getInstance().cameraStreamManager.setVisionAssistViewDirection(direction,object : CommonCallbacks.CompletionCallback{
+        cameraStreamManager.setVisionAssistViewDirection(direction,object : CommonCallbacks.CompletionCallback{
             override fun onSuccess() {
 
             }
@@ -182,5 +186,17 @@ class VideoWidgetModel(
 
     private fun onStreamSourceUpdated() {
         streamSourceListener?.onStreamSourceUpdated(currentCameraIndex, currentLensType)
+    }
+
+    override fun onVisionAssistEnabled(isEnable: Boolean) {
+
+    }
+
+    override fun onVisionAssistViewDirectionRangeUpdated(modes: List<VisionAssistDirection>) {
+        assistViewRangeChangedProcessor.onNext(modes)
+    }
+
+    override fun onVisionAssistViewDirectionUpdated(mode: VisionAssistDirection) {
+        assistViewDirectionProcessor.onNext(mode)
     }
 }
